@@ -51,7 +51,7 @@ function App() {
 
 
   const tornar = () => {
-    window.location.href = "/project";
+    window.location.href = "/";
   }
 
   return (

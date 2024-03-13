@@ -99,6 +99,18 @@ Comment.belongsTo(Task);
 User.hasMany(Comment);
 Comment.belongsTo(User);
 
+// Define el método createTask para crear una nueva tarea asociada al proyecto
+Project.prototype.createTask = async function(taskData) {
+  try {
+    // Crea una nueva tarea asociada a este proyecto
+    const task = await Task.create(taskData);
+    // Asocia la nueva tarea al proyecto
+    await this.addTask(task);
+    return task;
+  } catch (error) {
+    throw new Error('No se pudo crear la tarea asociada al proyecto');
+  }
+};
 
 // Exporta els models per a poder ser utilitzats en altres parts de l'aplicació
 module.exports = {

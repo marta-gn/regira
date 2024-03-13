@@ -72,9 +72,9 @@ router.post('/task', async (req, res) => await createItem(req, res, Task));
 
 
 /// GET PER RETORNAR LES TASKS D'UN PROJECTE
-router.get('/task/project/:project_id', async (req, res) => {
+router.get('/task/:projectId', async (req, res) => {
   try {
-    const project = await Project.findByPk(req.params.project_id); // Cerca el projecte pel seu ID
+    const project = await Project.findByPk(req.params.projectId); // Cerca el projecte pel seu ID
     if (!project) {
       return res.status(404).json({ error: 'Projecte no trobat' }); // Retorna error 404 si el projecte no es troba
     }
@@ -86,13 +86,13 @@ router.get('/task/project/:project_id', async (req, res) => {
 });
 
 //// POST PER CREAR UNA TASK PER UN PROJECTE
-router.post('/task/project/:project_id', async (req, res) => {
+router.post('/task/:projectId', async (req, res) => {
   try {
-    const project = await Project.findByPk(req.params.project_id); // Cerca el projecte pel seu ID
-    if (!project) {
+    const projecte = await Project.findByPk(req.params.projectId); // Cerca el projecte pel seu ID
+    if (!projecte) {
       return res.status(404).json({ error: 'Projecte no trobat' }); // Retorna error 404 si el projecte no es troba
     }
-    const item = await Project.createTask(req.body); // Crea issue per al projecte indicat
+    const item = await projecte.createTask(req.body); // Crea issue per al projecte indicat
     res.status(201).json(item); // Retorna el issue creat amb el codi d'estat 201
   } catch (error) {
     res.status(500).json({ error: error.message }); // Retorna error 500 amb el missatge d'error

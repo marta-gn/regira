@@ -1,36 +1,31 @@
-import { useState, useEffect, useContext } from 'react';
-import './App.css';
-import NouProjecte from './NouProjecte';
-import {Link, Outlet} from "react-router-dom";
-import Context from './Context';
+import { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
+import Context from "./Context";
 
 function LlistaProject() {
   const [projects, setProjects] = useState([]);
-  const [error, setError] = useState(false);
-  const [data, setData] = useState([]);
-  const {login, handleLogout, setLogin} = useContext(Context);
+  const { login, handleLogout, setLogin } = useContext(Context);
 
-  const API_URL = 'http://localhost:3000/api';
+  const API_URL = "http://localhost:3000/api";
 
   useEffect(() => {
-    if (!login){
-      redirect('/login')
+    if (!login) {
+      redirect("/login");
     }
-
-  },[login])
+  }, [login]);
 
   useEffect(() => {
-    if (document.cookie.includes('token')) {
-      fetch(API_URL + '/refresh', { credentials: "include" })
-        .then(e => e.json())
-        .then(data => {
+    if (document.cookie.includes("token")) {
+      fetch(API_URL + "/refresh", { credentials: "include" })
+        .then((e) => e.json())
+        .then((data) => {
           if (data.error) {
-            redirect('/login');
+            redirect("/login");
             handleLogout();
           } else {
-            setLogin(data)
+            setLogin(data);
           }
-        })
+        });
     }
   }, []);
 
@@ -42,73 +37,104 @@ function LlistaProject() {
           setError(true);
         } else {
           setProjects(data);
-          setData(data.id);
-          console.log(data[0].id);        }
+        }
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         setError(true);
       });
   }, []);
 
   const redirect = (path) => {
-    console.log('Redirecting to:', path);
+    console.log("Redirecting to:", path);
   };
 
   function remove(projectId) {
-    // Puedes realizar una solicitud DELETE al servidor para eliminar el proyecto
     fetch(API_URL + `/project/${projectId}`, {
-      method: 'DELETE',
-      credentials: 'include',
+      method: "DELETE",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     })
       .then((resp) => resp.json())
       .then((data) => {
-        console.log('Project removed:', data)
-
-        // Actualizar la lista de proyectos después de la eliminación
+        console.log("Project removed:", data);
         setProjects((prevProjects) =>
           prevProjects.filter((project) => project.id !== projectId)
         );
       })
-
       .catch((error) => {
-        console.error('Error deleting project:', error);
+        console.error("Error deleting project:", error);
       });
-  };
+  }
 
+  function tasquesProjecte(projectId) {
+    fetch(API_URL + `/task/${projectId}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((data) => {
+        console.log("Tasques recuperades:", data);
+        redirect(`/task/${projectId}`);
+      })
+      .catch((error) => {
+        console.error("Error recuperant les tasques:", error);
+      });
+  }
 
+  function detalle(projectId) {
+    redirect(`/project/${projectId}`);
+    // window.location.href = "/project/3"
+  }
 
   return (
     <>
       <h1 className="font-extrabold text-4xl mb-3">Llista de projectes</h1>
 
-      <Link className="px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded" to="/project/new">Nou projecte</Link>
+      <Link
+        className="px-4 py-2 bg-slate-900 hover:bg-slate-700 text-white rounded"
+        to="/project/new"
+      >
+        Nou projecte
+      </Link>
       <br />
       <br />
-      
 
       <div className="flex flex-wrap -mx-4">
-  {projects.map((project) => (
-    <div key={project.id} className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-4">
-      <div className="bg-white border border-neutral-200 rounded-lg overflow-hidden">
-        <div className="p-4">
-          <div className="font-bold mb-2 text-2xl">{project.name}</div>
-          <div className="text-neutral-500 mb-2">{project.description}</div>
-          <button className="border p-2 mr-2 bg-red-800 hover:bg-red-600 rounded-lg text-white font-bold" onClick={()=>remove(project.id)}>Elimina</button>
-
-          <Link
-            className="border p-2 bg-emerald-800 hover:bg-emerald-600 rounded-lg text-white font-bold"
-            to="/task"
-          >Tasques</Link>
-        </div>
+        {projects.map((project) => (
+          <div key={project.id} className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-4">
+            <div className="bg-white border border-neutral-200 rounded-lg overflow-hidden">
+              <div className="p-4">
+                <div className="font-bold mb-2 text-2xl">{project.name}</div>
+                <div className="text-neutral-500 mb-2">{project.description}</div>
+                <button
+                  className="border p-2 mr-2 bg-red-800 hover:bg-red-600 rounded-lg text-white font-bold"
+                  onClick={() => remove(project.id)}
+                >
+                  Elimina
+                </button>
+                <button
+                  className="border p-2 bg-emerald-800 hover:bg-emerald-600 rounded-lg text-white font-bold"
+                  onClick={() => tasquesProjecte(project.id)}
+                >
+                  Tasques
+                </button>
+                <button
+                  className="border p-2 bg-blue-800 hover:bg-blue-600 rounded-lg text-white font-bold"
+                  onClick={() => detalle(project.id)}
+                >
+                  Detalle
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
-
     </>
   );
 }

@@ -3,7 +3,6 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import App from './App.jsx'
-import Inici from './Inici.jsx';
 import Login from './Login.jsx';
 import LlistaUsers from './Users';
 import LlistaProject from './Project';
@@ -13,6 +12,7 @@ import Register from './Register.jsx';
 import Error from './Error.jsx';
 
 import './index.css'
+// import { Task } from '../../regira-api/models.js';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
 
@@ -20,13 +20,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />}>
 
-          <Route index element={<Inici />} />
+          <Route index element={<LlistaProject />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/users" element={<LlistaUsers />} />
-          <Route path="/project" element={<LlistaProject />} />
+          {/*<Route path="/" element={<LlistaProject />} />*/}
           <Route path="/project/new" element={<NouProjecte />} />
           <Route path="/task" element={<LlistaTask />} />
+          {/* <Route path="/task/:projectId" element={<Task />} /> */}
           <Route path="/error" element={<Error />} />
 
 

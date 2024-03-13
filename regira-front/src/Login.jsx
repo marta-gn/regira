@@ -38,7 +38,7 @@ export default () => {
             console.log("resp", data)
         
             if (!data.error) {
-            redirect('/project')
+            redirect('/')
             } else {redirect ("/error")}
             
         })
