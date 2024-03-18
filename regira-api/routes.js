@@ -64,15 +64,15 @@ const checkToken = (req, res, next) => {
 // Operacions CRUD per a les Task
 
 router.get('/task', async (req, res) => await readItems(req, res, Task)); 
+router.get('/task/:projectId', async (req, res) => await readItems(req, res, Task));
 router.delete('/task/:id', async (req, res) => await deleteItem(req, res, Task));
 router.post('/task', async (req, res) => await createItem(req, res, Task));
 
 // router.get('/task/:id_task', async (req, res) => await readItem(req, res, Task));
 // router.put('/task/:id', async (req, res) => await updateItem(req, res, Task));
 
-
-/// GET PER RETORNAR LES TASKS D'UN PROJECTE
-router.get('/task/:projectId', async (req, res) => {
+/// GET PER RETORNAR EL DETALL D'UN PROJECTE
+router.get('/project/task/:projectId', async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.projectId); // Cerca el projecte pel seu ID
     if (!project) {
@@ -85,8 +85,67 @@ router.get('/task/:projectId', async (req, res) => {
   }
 });
 
+/// GET PER RETORNAR LES TASKS D'UN PROJECTE
+/*
+router.get('/task/:projectId', async (req, res) => {
+  try {
+    const project = await Project.findByPk(req.params.projectId); // Cerca el projecte pel seu ID
+    if (!project) {
+      return res.status(404).json({ error: 'Projecte no trobat' }); // Retorna error 404 si el projecte no es troba
+    }
+    const tasks = await project.getTasks(); // Obté totes els issues del projecte
+    res.json(tasks); // Retorna les issues
+  } catch (error) {
+    res.status(500).json({ error: error.message }); // Retorna error 500 amb el missatge d'error
+  }
+});
+*/
+
+// POST DE UN TASK DE UN PROYECTO CONCRETO
+router.post('/task/project/:projectId', checkToken, async (req, res, next) => {
+  try {
+      const user = await User.findByPk(req.userId);
+      if (!user) {
+          return res.status(500).json({ error: 'User not found' });
+      }
+
+      req.body.userId = req.userId;
+      req.body.projectId = req.params.projectId;
+
+      upload(req, res, async function (err) {
+          if (err) {
+              return res.status(500).json({ error: err.message });
+          }
+
+          if (req.file) {
+              req.body.foto = req.file.filename;
+          }
+
+          const item = await user.createTask(req.body);
+          res.status(201).json(item);
+      });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+// GET DE LAS TASK DE UN PROYECTO
+router.get('/task/project/:projectId', checkToken, async (req, res) => {
+  try {
+      const project = await Project.findByPk(req.params.projectId, { include: Task });
+      if (!project) {
+          return res.status(404).json({ error: 'Project not found' });
+      }
+      res.json(project);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+
+/*
 //// POST PER CREAR UNA TASK PER UN PROJECTE
-router.post('/task/:projectId', async (req, res) => {
+router.post('/project/task/:projectId', async (req, res) => {
   try {
     const projecte = await Project.findByPk(req.params.projectId); // Cerca el projecte pel seu ID
     if (!projecte) {
@@ -98,6 +157,7 @@ router.post('/task/:projectId', async (req, res) => {
     res.status(500).json({ error: error.message }); // Retorna error 500 amb el missatge d'error
   }
 });
+*/
 
 // Endpoint per vincular una issue a un usuari
 router.post('/task/:id_task/users/:id_user', async (req, res) => {
@@ -150,8 +210,6 @@ router.patch('/task/:id_task', async (req, res) => {
     return res.status(500).json({ error: `Error actualitzant la issue "{id_issue}` });
   }
 });
-
-
 
 
 // Operacions CRUD per als Project

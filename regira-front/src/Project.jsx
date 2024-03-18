@@ -1,14 +1,18 @@
 import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import Context from "./Context";
+import DetallProject from "./Kanban";
+
+
 
 function LlistaProject() {
   const [projects, setProjects] = useState([]);
   const { login, handleLogout, setLogin } = useContext(Context);
+  const [error, setError] = useState(false);
 
   const API_URL = "http://localhost:3000/api";
 
-  useEffect(() => {
+ /* useEffect(() => {
     if (!login) {
       redirect("/login");
     }
@@ -28,6 +32,8 @@ function LlistaProject() {
         });
     }
   }, []);
+
+  */
 
   useEffect(() => {
     fetch(API_URL + "/project")
@@ -49,6 +55,7 @@ function LlistaProject() {
     console.log("Redirecting to:", path);
   };
 
+
   function remove(projectId) {
     fetch(API_URL + `/project/${projectId}`, {
       method: "DELETE",
@@ -69,8 +76,10 @@ function LlistaProject() {
       });
   }
 
+  /* 
+  
   function tasquesProjecte(projectId) {
-    fetch(API_URL + `/task/${projectId}`, {
+    fetch(API_URL + `/task`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -80,17 +89,14 @@ function LlistaProject() {
       .then((resp) => resp.json())
       .then((data) => {
         console.log("Tasques recuperades:", data);
-        redirect(`/task/${projectId}`);
+        redirect(`/task`);
       })
       .catch((error) => {
         console.error("Error recuperant les tasques:", error);
       });
   }
+  */
 
-  function detalle(projectId) {
-    redirect(`/project/${projectId}`);
-    // window.location.href = "/project/3"
-  }
 
   return (
     <>
@@ -102,34 +108,28 @@ function LlistaProject() {
       >
         Nou projecte
       </Link>
+
       <br />
       <br />
 
       <div className="flex flex-wrap -mx-4">
         {projects.map((project) => (
           <div key={project.id} className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-4">
+
             <div className="bg-white border border-neutral-200 rounded-lg overflow-hidden">
               <div className="p-4">
                 <div className="font-bold mb-2 text-2xl">{project.name}</div>
                 <div className="text-neutral-500 mb-2">{project.description}</div>
+
                 <button
                   className="border p-2 mr-2 bg-red-800 hover:bg-red-600 rounded-lg text-white font-bold"
                   onClick={() => remove(project.id)}
                 >
                   Elimina
                 </button>
-                <button
-                  className="border p-2 bg-emerald-800 hover:bg-emerald-600 rounded-lg text-white font-bold"
-                  onClick={() => tasquesProjecte(project.id)}
-                >
-                  Tasques
-                </button>
-                <button
-                  className="border p-2 bg-blue-800 hover:bg-blue-600 rounded-lg text-white font-bold"
-                  onClick={() => detalle(project.id)}
-                >
-                  Detalle
-                </button>
+
+                <Link className="border p-2 mr-2 bg-emerald-800 hover:bg-emerald-600 rounded-lg text-white font-bold" to={`/project/task/${project.id}`}>Detalle</Link>
+                
               </div>
             </div>
           </div>

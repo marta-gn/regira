@@ -2,6 +2,7 @@ import './App.css'
 import {Link, Outlet, useNavigate} from "react-router-dom";
 import Context from './Context';
 import { useState, useEffect } from 'react';
+
 const API_URL = "http://localhost:3000/api";
 
 
@@ -18,7 +19,7 @@ function App() {
 
   },[login])
 
-  const data = {login, setLogin, register, setRegister}
+  const data = {login, setLogin, register, setRegister, API_URL}
 
   const handleLogout = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -62,6 +63,8 @@ function App() {
     
     <button onClick={tornar} className="flex flex-cols-2 text-slate-600 text-3xl font-extrabold text-white p-3">
       <img src="/img/regira.png" className="w-20 h-max mr-2" alt="Regira Logo" />Regira</button>
+      <Link className="bg-slate-600 p-2 m-5 text-white rounded-lg" to="/task">Totes les tasques</Link>
+
 
     <div className="p-2 m-5">
     {login && <button className="border solid px-4 py-2 bg-red-800 hover:bg-red-600 text-white rounded mr-3" onClick={handleLogout}>Logout ({login.name})</button>}
@@ -69,10 +72,10 @@ function App() {
 
     </div>
     </div>
-
     
 
       <div className="p-10">
+
         <Outlet />
       </div>
 

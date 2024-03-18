@@ -10,6 +10,8 @@ import LlistaTask from './Task'
 import NouProjecte from './NouProjecte.jsx';
 import Register from './Register.jsx';
 import Error from './Error.jsx';
+import DetallProject from './Kanban.jsx';
+import NovaTasca from './NovaTask.jsx';
 
 import './index.css'
 // import { Task } from '../../regira-api/models.js';
@@ -25,10 +27,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/register" element={<Register />} />
           <Route path="/users" element={<LlistaUsers />} />
           {/*<Route path="/" element={<LlistaProject />} />*/}
+          <Route path="/task/new/:projectId" element={<NovaTasca />} />
           <Route path="/project/new" element={<NouProjecte />} />
+
           <Route path="/task" element={<LlistaTask />} />
           {/* <Route path="/task/:projectId" element={<Task />} /> */}
           <Route path="/error" element={<Error />} />
+          <Route path="/project/task/:projectId" element={<DetallProject />} />
 
 
           

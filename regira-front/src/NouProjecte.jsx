@@ -37,7 +37,7 @@ function NouProjecte() {
         .then(resp => resp.json())
         .then(data => {
             console.log("resp", data);
-            redirect('/project')
+            redirect('/')
             
         })
         .catch(err => console.log(err))

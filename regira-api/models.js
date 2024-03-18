@@ -24,15 +24,15 @@ const User = sequelize.define('user', {
 const Project = sequelize.define('project', {
     name: {
       type: Sequelize.STRING,
-      allowNull: false // No es permet valor nul per al nom
+      allowNull: false 
     },
     description: {
       type: Sequelize.STRING,
-      allowNull: false // No es permet valor nul per a la descripció
+      allowNull: false 
     },
     active: {
-        type: Sequelize.BOOLEAN, // Només es permeten aquests valors
-        allowNull: true // No es permet valor nul per al tipus
+      type: Sequelize.BOOLEAN,
+        allowNull: true 
     },
   }); 
 
@@ -50,12 +50,13 @@ const Task = sequelize.define('task', {
       allowNull: false
     },
     state: {
-      type: Sequelize.ENUM('backlog', 'ready', 'in_progress', 'review', 'testing','done'),
-      allowNull: false
+      type: Sequelize.ENUM('backlog', 'in_progress', 'review', 'testing','done', 'closed'),
+      allowNull: false,
+      defaultValue: 'backlog'
     },
     task_type: {
       type: Sequelize.ENUM('story', 'bugs', 'general'),
-      allowNull: false
+      allowNull: false,
       },
   }); 
 
@@ -76,7 +77,7 @@ async function iniDB() {
     await sequelize.sync({ force: true });
 }
   
-// iniDB();
+  //iniDB();
 
 
 // hook per encriptar la contrasenya abans de desar un nou usuari
