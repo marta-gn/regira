@@ -65,11 +65,42 @@ const checkToken = (req, res, next) => {
 
 router.get('/task', async (req, res) => await readItems(req, res, Task)); 
 router.get('/task/:projectId', async (req, res) => await readItems(req, res, Task));
+router.put('/task/:id', async (req, res) => await updateItem(req, res, Task));
 router.delete('/task/:id', async (req, res) => await deleteItem(req, res, Task));
 router.post('/task', async (req, res) => await createItem(req, res, Task));
 
-// router.get('/task/:id_task', async (req, res) => await readItem(req, res, Task));
-// router.put('/task/:id', async (req, res) => await updateItem(req, res, Task));
+// PUT DRAGGABLE
+router.put('/task/:taskId', async (req, res) => {
+  try {
+      const existingTask = await Task.findByPk(req.params.taskId);
+
+      if (!existingTask) {
+          return res.status(400).json({ error: 'Task not found' });
+      }
+
+      if (req.body.name) {
+          existingTask.name = req.body.name;
+      }
+      if (req.body.description) {
+          existingTask.description = req.body.description;
+      }
+      if (req.body.priority) {
+          existingTask.priority = req.body.priority;
+      }
+      if (req.body.state) {
+          existingTask.state = req.body.state;
+      }
+      if (req.body.task_type) {
+          existingTask.task_type = req.body.task_type;
+      }
+
+      await existingTask.save();
+
+      return res.status(200).json({ message: 'Task updated' });
+  } catch (error) {
+      return res.status(500).json({ error: `Error updating task ${taskId}` });
+  }
+});
 
 /// GET PER RETORNAR EL DETALL D'UN PROJECTE
 router.get('/project/task/:projectId', async (req, res) => {

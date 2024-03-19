@@ -63,7 +63,6 @@ function App() {
     
     <button onClick={tornar} className="flex flex-cols-2 text-slate-600 text-3xl font-extrabold text-white p-3">
       <img src="/img/regira.png" className="w-20 h-max mr-2" alt="Regira Logo" />Regira</button>
-      <Link className="bg-slate-600 p-2 m-5 text-white rounded-lg" to="/task">Totes les tasques</Link>
 
 
     <div className="p-2 m-5">

@@ -1,52 +1,48 @@
 
-import { useEffect, useState, useContext, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-import Context from "./Context";
-import IssueCard from './IssueCard';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate} from "react-router-dom";
+import IssueCard from "./IssueCard.jsx";
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-const ItemType = 'ISSUE_ITEM';  
 
-const CAIXES = [
-  {state: 'backlog', titol: 'Pendent'},
-  {state: 'in_progress', titol: 'En curs'},
-  {state: 'review', titol: 'Revisió'},
-  {state: 'testing', titol: 'Testejant'},
-  {state: 'done', titol: 'Fet'},
-  {state: 'closed', titol: 'Tancat'}
+const ItemType = 'TASK_ITEM';
+
+const BOXES = [
+  { state: 'backlog', name: 'Backlog' },
+  { state: 'in_progress', name: 'In progress' },
+  { state: 'review', name: 'Review' },
+  { state: 'done', name: "Done" },
+  { state: 'closed', name: 'Closed' }
 ];
 
-const Item = ({ eliminaItem, data}) => {
+const Item = ({ deleteItem, data }) => {
   const [{ isDragging }, drag_ref] = useDrag({
-    type: ItemType,
-    item: { type: ItemType, id: data.id }
+      type: ItemType,
+      item: { type: ItemType, id: data.id }
   });
-
-  return <IssueCard reference={drag_ref}
-  isDragging={isDragging} data={data} remove={eliminaItem} />;
-
+  return <IssueCard reference={drag_ref} isDragging={isDragging} data={data} remove={deleteItem} />;
 };
 
-  const Box = ({ children, caixa, mouItem }) => {
-    const [{ isOver }, drop_ref] = useDrop ({
+const Box = ({ children, box, moveItem }) => {
+  const [{ isOver }, drop_ref] = useDrop({
       accept: ItemType,
       drop: (item) => {
-        mouItem(item, caixa.state)
+          moveItem(item, box.state)
       },
       collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
+          isOver: !!monitor.isOver(),
       }),
-    });
+  });
 
-    return (
-        <div ref={drop_ref} className={`bg-slate-100 p-3 min-h-[400px] border ${isOver ? 'border-blue-500' : ''}`}>
-            <h2 className="text-xl text-center mb-4" >{caixa.titol}</h2>
-            {children}
-        </div>
-      );
-  };
+  return (
+    <div ref={drop_ref} className={`bg-slate-100 p-3 min-h-[400px] border ${isOver ? 'border-blue-500' : ''}`}>
+        <h2 className="text-xl text-center mb-4" >{box.name}</h2>
+        {children}
+    </div>
+);
 
-
+}
 
 // COMPONENTE KANBAN
 
@@ -56,12 +52,52 @@ function DetallProject() {
     
     const API_URL = "http://localhost:3000/api";
 
-    const [error, setError] = useState(false);
     const [kanban, setKanban] = useState({tasks: []});
+    const [project, setProject] = useState([]);
+    const [error, setError] = useState('');
+    const redirect = useNavigate();
+    const [update, setUpdate] = useState(0);
 
+    const moveItem = (item, state) => {
+      const options = {
+          credentials: 'include',
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ state })
+      }
 
+      fetch(API_URL + '/task/' + item.id, options)
+          .then(r => r.json())
+          .then(data => {
+              if (data.error == 'Unauthorized') logout();
+              else setUpdate(update + 1);
+          })
+          .catch(err => console.log(err))
+  }
+
+  const deleteItem = (item) => {
+    const options = {
+        credentials: 'include',
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+
+    fetch(API_URL + '/task/' + item.id, options)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error == 'Unauthorized') logout();
+            else setUpdate(update + 1);
+        })
+        .catch(err => console.log(err))
+    }
   
-    useEffect(() => {
+  useEffect(() => { console.log(project) }, [project]);
+  
+  useEffect(() => {
         fetch(API_URL + `/task/project/${projectId}`, {credentials: 'include'})
           .then((resp) => resp.json())
           .then((data) => {
@@ -76,7 +112,7 @@ function DetallProject() {
             console.error("Error fetching data:", error);
             setError(true);
           });
-      }, []);
+  }, [update]);
 
 
 
@@ -84,8 +120,35 @@ function DetallProject() {
 
     return (
     <>
+  
+  <div className="flex justify-between">
 
-    <Link to={"/task/new/" + projectId} >Nova tasca</Link>
+<h1 className="font-bold text-3xl">Projecte: <span className="bg-yellow-200 p-2 rounded-lg">{kanban.name}</span></h1>
+<button className="rounded-lg p-3 bg-red-200" onClick={() => redirect(`/task/new/${projectId}`)}>Nova tasca</button>
+</div>
+
+<br />
+<br />
+
+<DndProvider backend={HTML5Backend}>
+<div className="grid grid-cols-5 gap-3">
+    {
+      BOXES.map(box => (
+        <Box key={box.state} box={box} moveItem={moveItem}>
+            {kanban.tasks.filter(e => e.state == box.state).map(e => <Item key={e.id} deleteItem={deleteItem} data={e} />)}
+        </Box>
+    ))}
+    
+</div>
+</DndProvider>
+
+
+
+
+    {/*
+    <h1 className="font-extrabold text-4xl">Llista de tasques</h1>
+    <br />
+    <Link className="bg-slate-500 rounded-lg p-3 mt-20" to={"/task/new/" + projectId} >Nova tasca</Link>
 
     <div>
     {kanban.tasks.map((tarea) => (
@@ -107,6 +170,7 @@ function DetallProject() {
     
     ))}
     </div>
+    */}
     
     
     </>

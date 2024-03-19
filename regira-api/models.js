@@ -50,7 +50,7 @@ const Task = sequelize.define('task', {
       allowNull: false
     },
     state: {
-      type: Sequelize.ENUM('backlog', 'in_progress', 'review', 'testing','done', 'closed'),
+      type: Sequelize.ENUM('backlog', 'in_progress', 'review', 'done', 'closed'),
       allowNull: false,
       defaultValue: 'backlog'
     },
